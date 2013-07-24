@@ -1,7 +1,7 @@
 require "vagrant-ohai/version"
 require "vagrant/plugin"
 
-raise RuntimeException, "vagrant-ohai will only work with Vagrant 1.2.3 and above!" if Vagrant::VERSION <= "1.2.3"
+raise RuntimeError, "vagrant-ohai will only work with Vagrant 1.2.3 and above!" if Vagrant::VERSION <= "1.2.3"
 
 module VagrantPlugins
   module Ohai 
