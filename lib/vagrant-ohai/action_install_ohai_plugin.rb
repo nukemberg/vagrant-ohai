@@ -36,6 +36,8 @@ module VagrantPlugins
 
       def private_ipv4
         @private_ipv4 ||= @machine.config.vm.networks.find {|network| network.first == :private_network}[1][:ip]
+      rescue
+        nil
       end
 
       def vagrant_info
