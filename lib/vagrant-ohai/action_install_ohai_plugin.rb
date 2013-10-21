@@ -17,7 +17,7 @@ module VagrantPlugins
         @app.call(env)
         return unless @machine.communicate.ready?
 
-        if chef_provisioners.any?
+        if chef_provisioners.any? and @machine.config.ohai.enable
           @machine.ui.info("Installing Ohai plugin")
           create_ohai_folders
           copy_ohai_plugin
@@ -43,6 +43,7 @@ module VagrantPlugins
       def vagrant_info
         info = {}
         info[:private_ipv4] = private_ipv4 if private_ipv4
+        info[:box] = @machine.config.vm.box
         info
       end
 
@@ -51,7 +52,7 @@ module VagrantPlugins
         hint_file.write(vagrant_info.to_json)
         hint_file.close
         @machine.communicate.upload(hint_file.path, "/etc/chef/ohai/hints/vagrant.json")
-      end 
+      end
 
       def copy_ohai_plugin
         @machine.communicate.upload(OHAI_PLUGIN_PATH, "/etc/chef/ohai_plugins/vagrant.rb")

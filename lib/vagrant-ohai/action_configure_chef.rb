@@ -29,6 +29,7 @@ module VagrantPlugins
       end
 
       def register_custom_chef_config
+        return unless @machine.config.ohai.enable
         chef_provisioners.each do |provisioner|
           if provisioner.config.respond_to? :custom_config_path and not provisioner.config.custom_config_path == Plugin::UNSET_VALUE
             current_custom_config_path = provisioner.config.custom_config_path
@@ -36,7 +37,7 @@ module VagrantPlugins
             current_custom_config_path = nil
           end
           custom_config = ohai_custom_config(current_custom_config_path)
-          provisioner.config.instance_variable_set("@custom_config_path", custom_config.path) 
+          provisioner.config.instance_variable_set("@custom_config_path", custom_config.path)
         end
       end
     end
