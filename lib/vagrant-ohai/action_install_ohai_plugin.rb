@@ -44,6 +44,7 @@ module VagrantPlugins
         info = {}
         info[:private_ipv4] = private_ipv4 if private_ipv4
         info[:box] = @machine.config.vm.box
+        info[:primary_nic] = @machine.config.ohai.primary_nic
         info
       end
 

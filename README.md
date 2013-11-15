@@ -11,6 +11,9 @@ In particular, the ipaddress is set to the private network defined in vagrant, i
 ## Usage
 
 The plugin will automatcially activate when using the `:chef_solo` or `:chef_client` provisioners. If you want to disable it, put `config.ohai.enable = false` in your Vagrantfile.
+If you wish to use a primary nic which is not a private network, e.g. when using a bridge, set the `primary_nic` option:
+
+    config.ohai.primary_nic = "eth1"
 
 ## Compatability
 
