@@ -4,7 +4,7 @@ module VagrantPlugins
     module Helpers
       def chef_provisioners
         @machine.config.vm.provisioners.find_all do |provisioner|
-          [:chef_client, :chef_solo, :chef_zero, :chef_apply].include? provisioner.type
+          [:shell, :chef_client, :chef_solo, :chef_zero, :chef_apply].include? provisioner.type
         end
       end
     end

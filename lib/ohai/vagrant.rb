@@ -1,19 +1,24 @@
-hints = hint?("vagrant")
+Ohai.plugin(:Vboxipaddress) do
 
-provides "vagrant"
-provides "cloud"
+    provides "ipaddress"
+    depends "ipaddress", "network/interfaces", "virtualization/system", "etc/passwd"
 
-vagrant Mash.new
-cloud Mash.new
+    if File.exist?('/etc/chef/ohai_plugins/vagrant.json')
+        vagrant = JSON.parse(IO.read('/etc/chef/ohai_plugins/vagrant.json'))
 
-if hints
-  vagrant.merge!(hints)
-  require_plugin "cloud"
-  if vagrant[:primary_nic]
-    ipaddress network[:interfaces][vagrant[:primary_nic]][:addresses].find{|addr, addr_opts| addr_opts[:family] == "inet"}.first
-  elsif vagrant[:private_ipv4]
-    cloud[:local_ipv4] = vagrant[:private_ipv4]
-    ipaddress vagrant[:private_ipv4]
-  end
-  cloud[:provider] = "vagrant"
+        collect_data(:default) do
+            if virtualization["system"] == "vbox"
+                if etc["passwd"].any? { |k,v| k == "vagrant"}
+                    primary_nic = vagrant["primary_nic"]
+                    if primary_nic && network["interfaces"][primary_nic]
+                        network["interfaces"][primary_nic]["addresses"].each do |ip, params|
+                            if params['family'] == ('inet')
+                                ipaddress ip
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 end

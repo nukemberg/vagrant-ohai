@@ -22,7 +22,6 @@ module VagrantPlugins
           @machine.ui.info("Installing Ohai plugin")
           create_ohai_folders
           copy_ohai_plugin
-          hint_ohai
         end
       end
 
@@ -30,9 +29,8 @@ module VagrantPlugins
 
       def create_ohai_folders
         @machine.communicate.tap do |comm|
-          comm.sudo("mkdir -p /etc/chef/ohai/hints")
           comm.sudo("mkdir -p /etc/chef/ohai_plugins")
-          comm.sudo("chown -R #{@machine.ssh_info[:username]} /etc/chef/ohai/hints /etc/chef/ohai_plugins")
+          comm.sudo("chown -R #{@machine.ssh_info[:username]} /etc/chef/ohai_plugins")
         end
       end
 
@@ -44,20 +42,18 @@ module VagrantPlugins
 
       def vagrant_info
         info = {}
-        info[:private_ipv4] = private_ipv4 if private_ipv4
         info[:box] = @machine.config.vm.box
         info[:primary_nic] = @machine.config.ohai.primary_nic
         info
       end
 
-      def hint_ohai
+      def copy_ohai_plugin
+
         hint_file = Tempfile.new(["vagrant-ohai", ".json"])
         hint_file.write(vagrant_info.to_json)
         hint_file.close
-        @machine.communicate.upload(hint_file.path, "/etc/chef/ohai/hints/vagrant.json")
-      end
+        @machine.communicate.upload(hint_file.path, "/etc/chef/ohai_plugins/vagrant.json")
 
-      def copy_ohai_plugin
         @machine.communicate.upload(OHAI_PLUGIN_PATH, "/etc/chef/ohai_plugins/vagrant.rb")
       end
 
