@@ -14,10 +14,11 @@ module VagrantPlugins
       end
 
       def call(env)
+        is_chef_used = chef_provisioners.any?
         @app.call(env)
         return unless @machine.communicate.ready?
 
-        if chef_provisioners.any? and @machine.config.ohai.enable
+        if is_chef_used && @machine.config.ohai.enable
           @machine.ui.info("Installing Ohai plugin")
           create_ohai_folders
           copy_ohai_plugin
@@ -26,6 +27,7 @@ module VagrantPlugins
       end
 
       private
+
       def create_ohai_folders
         @machine.communicate.tap do |comm|
           comm.sudo("mkdir -p /etc/chef/ohai/hints")
