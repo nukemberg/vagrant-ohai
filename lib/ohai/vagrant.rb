@@ -1,19 +1,36 @@
-hints = hint?("vagrant")
+Ohai.plugin(:VboxIpaddress) do
 
-provides "vagrant"
-provides "cloud"
+  provides 'ipaddress'
 
-vagrant Mash.new
-cloud Mash.new
+  depends 'ipaddress'
+  depends 'network/interfaces'
+  depends 'virtualization/system'
+  depends 'etc/passwd'
 
-if hints
-  vagrant.merge!(hints)
-  require_plugin "cloud"
-  if vagrant[:primary_nic]
-    ipaddress network[:interfaces][vagrant[:primary_nic]][:addresses].find{|addr, addr_opts| addr_opts[:family] == "inet"}.first
-  elsif vagrant[:private_ipv4]
-    cloud[:local_ipv4] = vagrant[:private_ipv4]
-    ipaddress vagrant[:private_ipv4]
+  # Ohai hint
+  unless File.exist?('/etc/chef/ohai_plugins/vagrant.json')
+    Chef::Log.fail('Ohai has not set :ipaddress (Missing vagrant.json)')
+    return
   end
-  cloud[:provider] = "vagrant"
+  vagrant = JSON.parse(IO.read('/etc/chef/ohai_plugins/vagrant.json'))
+
+  # requested nit
+  nic = vagrant['primary_nic']
+  if nic.nil?
+    Chef::Log.debug('nic not set for vagrant-ohai plugin. Skipping')
+    return
+  end
+
+  collect_data(:default) do
+    if etc['passwd'].any? { |k, _v| k == 'vagrant' }
+      if network['interfaces'][nic] && virtualization['system'] == 'vbox'
+        network['interfaces'][nic]['addresses'].each do |ip, params|
+          if params['family'] == ('inet')
+            ipaddress ip
+            Chef::Log.info("Ohai override :ipaddress to #{ip} from #{nic}")
+          end
+        end
+      end
+    end
+  end
 end
