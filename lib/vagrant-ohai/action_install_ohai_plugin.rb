@@ -30,7 +30,9 @@ module VagrantPlugins
       def create_ohai_folders
         @machine.communicate.tap do |comm|
           comm.sudo("mkdir -p /etc/chef/ohai_plugins")
+          comm.sudo("mkdir -p /etc/chef/ohai/hints")
           comm.sudo("chown -R #{@machine.ssh_info[:username]} /etc/chef/ohai_plugins")
+          comm.sudo("chown -R #{@machine.ssh_info[:username]} /etc/chef/ohai/hints")
         end
       end
 
@@ -53,7 +55,7 @@ module VagrantPlugins
         hint_file = Tempfile.new(["vagrant-ohai", ".json"])
         hint_file.write(vagrant_info.to_json)
         hint_file.close
-        @machine.communicate.upload(hint_file.path, "/etc/chef/ohai_plugins/vagrant.json")
+        @machine.communicate.upload(hint_file.path, "/etc/chef/ohai/hints/vagrant.json")
 
         @machine.communicate.upload(OHAI_PLUGIN_PATH, "/etc/chef/ohai_plugins/vagrant.rb")
       end

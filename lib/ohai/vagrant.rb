@@ -1,13 +1,4 @@
-Ohai.plugin(:VboxIpaddress) do
-
-  def read_json(filename)
-    if defined? FFI_Yajl::Parser
-      FFI_Yajl::Parser.new.parse(IO.read(filename))
-    else
-      require 'json'
-      JSON.parse(IO.read(filename))
-    end
-  end
+Ohai.plugin(:VagrantIp) do
 
   def lookup_address_by_nic(network, nic)
     if network['interfaces'][nic]
@@ -33,21 +24,17 @@ Ohai.plugin(:VboxIpaddress) do
   provides 'ipaddress'
 
   depends 'ipaddress'
-  depends 'network'
   depends 'network/interfaces'
   depends 'virtualization/system'
   depends 'etc/passwd'
 
   collect_data(:default) do
-  # Ohai hint
-    unless File.exist?('/etc/chef/ohai_plugins/vagrant.json')
+    vagrant = hint?('vagrant')
+    unless vagrant
       Ohai::Log.fail('Ohai has not set :ipaddress (Missing vagrant.json)')
     else
-      vagrant = read_json('/etc/chef/ohai_plugins/vagrant.json')
-
-      # requested nit
       nic = vagrant['primary_nic']
-      if etc['passwd'].keys.include?('vagrant') && virtualization['system'] == 'vbox'
+      if etc['passwd'].keys.include?('vagrant')
         if nic
           nic, addr = lookup_address_by_nic(network, nic)
         elsif vagrant['private_ipv4']
