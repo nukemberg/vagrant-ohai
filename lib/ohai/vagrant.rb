@@ -47,19 +47,17 @@ Ohai.plugin(:VboxIpaddress) do
 
       # requested nit
       nic = vagrant['primary_nic']
-      if etc['passwd'].keys.include?('vagrant') && virtualization['system'] == 'vbox'
-        if nic
-          nic, addr = lookup_address_by_nic(network, nic)
-        elsif vagrant['private_ipv4']
-          nic, addr = lookup_address_by_ipaddress(network, vagrant['private_ipv4'])
-        else
-          nic, addr = nil, nil
-          Ohai::Log.info("Neither nic nor private_ipv4 are set, skipping")
-        end
-        if addr
-          Ohai::Log.info("Ohai override :ipaddress to #{addr} from #{nic}")
-          ipaddress addr
-        end
+      if nic
+        nic, addr = lookup_address_by_nic(network, nic)
+      elsif vagrant['private_ipv4']
+        nic, addr = lookup_address_by_ipaddress(network, vagrant['private_ipv4'])
+      else
+        nic, addr = nil, nil
+        Ohai::Log.info("Neither nic nor private_ipv4 are set, skipping")
+      end
+      if addr
+        Ohai::Log.info("Ohai override :ipaddress to #{addr} from #{nic}")
+        ipaddress addr
       end
     end
   end
