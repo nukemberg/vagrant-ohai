@@ -14,6 +14,10 @@ If you wish to use a primary nic which is not a private network, e.g. when using
 
     config.ohai.primary_nic = "eth1"
 
+To activate custom plugin support put `config.ohai.plugins_dir = <full_path_to_plugins_dir>` in your Vagrantfile
+
+    config.ohai.plugins_dir = "/var/ohai/custom_plugins"
+
 ## Compatibility
 
 This plugin works with Vagrant 1.2.3 and above.
