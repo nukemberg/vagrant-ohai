@@ -23,6 +23,11 @@ module VagrantPlugins
           create_ohai_folders
           copy_ohai_plugin
         end
+        if is_chef_used && @machine.config.ohai.plugins_dir
+          @machine.ui.info("Installing Custom Ohai plugin")
+          create_ohai_folders
+          copy_ohai_custom_plugins
+        end
       end
 
       private
@@ -56,6 +61,15 @@ module VagrantPlugins
         @machine.communicate.upload(hint_file.path, "/etc/chef/ohai_plugins/vagrant.json")
 
         @machine.communicate.upload(OHAI_PLUGIN_PATH, "/etc/chef/ohai_plugins/vagrant.rb")
+      end
+
+      def copy_ohai_custom_plugins
+
+        files = Dir.entries(@machine.config.ohai.plugins_dir).select { |e| e =~ /^[a-z]+\.rb/ }
+        files.each do |file|
+          custom_ohai_plugin_path = File.expand_path("#{@machine.config.ohai.plugins_dir}/#{file}", __FILE__)
+          @machine.communicate.upload(custom_ohai_plugin_path, "/etc/chef/ohai_plugins/#{file}")
+        end
       end
 
     end
