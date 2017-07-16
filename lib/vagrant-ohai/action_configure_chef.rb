@@ -19,7 +19,7 @@ module VagrantPlugins
       private
       def ohai_custom_config(current_conf)
         tmp = Tempfile.new(["chef-custom-config", ".rb"])
-        tmp.puts 'Ohai::Config[:plugin_path] << "/etc/chef/ohai_plugins"'
+        tmp.puts 'Ohai::config[:plugin_path] << "/etc/chef/ohai_plugins"'
         tmp.write(File.read(current_conf)) if current_conf
         tmp.close
         tmp
